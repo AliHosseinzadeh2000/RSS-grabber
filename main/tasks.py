@@ -9,36 +9,52 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def get_rss_items(link):
+    response = requests.get(link)
+    soup = BeautifulSoup(response.content, 'xml')    
+    return soup.find_all('item')
+
+
+def get_items_list(items):
+
+    items_list = []
+    existing_news_titles = News.objects.values_list('title', flat=True)
+
+    for item in items:
+        if item and item.title and item.link and item.description and item.author and item.pubDate:
+            if item.title.text not in existing_news_titles:
+
+                new = News(
+                        title=item.title.text,
+                        link=item.link.text,
+                        description=item.description.text,
+                        author=item.author.text,
+                        publish_date=datetime.strptime(item.pubDate.text,'%d %b %Y %H:%M:%S %z')   #.replace(tzinfo=None)
+                        )
+                items_list.append(new)
+    return items_list
+    
+
 app = Celery('tasks', broker='redis://localhost:6379')
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
-        10.0,      # run every 10 minutes
-        update_news_priodically.s(),
+        3600.0,      # run every hour
+        update_news_periodically.s(),
         name='update_news')
 
 
 @app.task(queue='news')
-def update_news_priodically():
+def update_news_periodically():
+
     print(f'-----------task started at {datetime.utcnow()}-----------')
 
     rss_list = Rss.objects.all()
 
     for rss in rss_list:
-        response = requests.get(rss.link)
-        soup = BeautifulSoup(response.content, 'xml')
-        items = soup.find_all('item')
+        items = get_rss_items(rss.link)
+        items_list = get_items_list(items)
+        News.objects.bulk_create(items_list) 
 
-        existing_news_titles = News.objects.values_list('title', flat=True)
-        for item in items:
-            title = item.title.text
-            if title in existing_news_titles:
-                continue
-            link = item.link.text
-            description = item.description.text
-            author = item.author.text
-            publish_date = datetime.strptime(item.pubDate.text,'%d %b %Y %H:%M:%S %z').replace(tzinfo=None)
-
-            News.objects.create(title=title, link=link, description=description, author=author, publish_date=publish_date)
     print('------------------------task ended-------------------------')

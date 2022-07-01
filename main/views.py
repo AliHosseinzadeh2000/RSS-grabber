@@ -3,6 +3,7 @@ from rest_framework import generics
 from main.models import News
 from main.serializers import NewsListSerializer
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -12,10 +13,10 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class NewsListView(mixins.ListModelMixin, generics.GenericAPIView):
-
     queryset = News.objects.all()
     serializer_class = NewsListSerializer
     pagination_class = StandardResultsSetPagination
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
