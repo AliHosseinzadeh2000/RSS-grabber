@@ -15,7 +15,7 @@ be the first one notified with the latest news.
 
 
 ## Installation
-1- clone the project
+1- clone the project:
 ```
 git clone git@github.com:AliHosseinzadeh2000/RSS-grabber.git
 ```
@@ -34,27 +34,33 @@ python -m venv venv
   ```
     venv/Scripts/activate
   ```
-5- install dependencies
+5- install dependencies:
 ```
 pip install -r requirements.txt
 ```
-6- run a redis container on docker
+6- run a redis container on docker:
 ```
 docker run --name myredis -p 6379:6379 -d redis
 ```
-7- run a celery worker in a seprated terminal tab
-```
-celery -b redis://localhost:6379 -A main.tasks worker -E -l INFO -P gevent -Q news
-```
-8- run celery beat in another tab:
-```
-celery -b redis://localhost:6379 -A main.tasks beat -l INFO
-```
-9- migrate the database:
+7- migrate the database:
 ```
 python manage.py migrate
 ```
-10- run the project:
+8- create a superuser:
+```
+python manage.py createsuperuser
+```
+9- add your desired RSS (for instance [iribnews](https://www.iribnews.ir/fa/rss/allnews)) in the admin panel
+
+10- run a celery worker in a seprated terminal tab:
+```
+celery -b redis://localhost:6379 -A main.tasks worker -E -l INFO -P gevent -Q news
+```
+11- run celery beat in another tab:
+```
+celery -b redis://localhost:6379 -A main.tasks beat -l INFO
+```
+12- run the project:
 ```
 python manage.py runserver
 ```
