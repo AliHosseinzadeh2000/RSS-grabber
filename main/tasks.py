@@ -29,7 +29,7 @@ def get_items_list(items):
                         link=item.link.text,
                         description=item.description.text,
                         author=item.author.text,
-                        publish_date=datetime.strptime(item.pubDate.text,'%d %b %Y %H:%M:%S %z')   #.replace(tzinfo=None)
+                        publish_date=datetime.strptime(item.pubDate.text,'%d %b %Y %H:%M:%S %z')
                         )
                 items_list.append(new)
     return items_list
