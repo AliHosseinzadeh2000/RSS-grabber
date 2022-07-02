@@ -19,7 +19,7 @@ be the first one notified with the latest news.
 ```
 git clone git@github.com:AliHosseinzadeh2000/RSS-grabber.git
 ```
-2- move '.env-sample' to the path dezhpad/dezhpad/, rename it to '.env', and provide required variables.
+2- rename '.env-sample' to '.env' and provide the required variables.
 
 3- create a python virtual environment:
 ```
